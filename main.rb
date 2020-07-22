@@ -96,10 +96,36 @@ module Enumerable
      end
     output_array
   end
-
   # --------------------
   # #MY_INJECT
   # --------------------
+  def my_inject(arg1=nil, arg2=nil)
+      memo = 0
+      if arg2.nil? && !block_given?
+        # 1. If there is one argument and no block, the argument represents
+        # a symbol.
+        for i in 1..self.length-1 do
+          memo = memo.send(arg1, self[i])
+        end
+        # 2. 2 arguments. arg1 is initial, arg2 is symbol of operator.
+      elsif !arg1.nil? && !arg2.nil?
+        memo = arg1
+        self.length.times do |i|
+          memo = memo.send(arg2, self[i])
+        end
+      elsif !arg1.nil? && arg2.nil? && block_given?
+        # 3. Block, one argument representing initial value.
+        memo = arg1
+        self.length.times do |i|
+          memo = yield memo, self[i]
+        end
+      elsif arg1.nil? && arg2.nil? && block_given?
+        self.length.times do |i|
+          memo = yield memo, self[i]
+        end
+      end
+      memo
+    end
 end
 
 # TESTS ---------------------------
