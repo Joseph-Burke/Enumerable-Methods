@@ -89,8 +89,13 @@ module Enumerable
   # --------------------
   # #MY_MAP
   # --------------------
-
-
+  def my_map
+    output_array = []
+     self.length.times do |i|
+       output_array.push(yield self[i])
+     end
+    output_array
+  end
 
   # --------------------
   # #MY_INJECT
