@@ -3,16 +3,20 @@ module Enumerable
   # #MY_EACH
   # --------------------
   def my_each
-  self.length.times do |i|
+    self.length.times do |i|
       yield self[i]
     end
     self
   end
-
   # --------------------
   # #MY_EACH_WITH_INDEX
   # --------------------
-
+  def my_each_with_index
+    self.length.times do |i|
+      yield self[i], i
+    end
+    self
+  end
   # --------------------
   # #MY_SELECT
   # --------------------
