@@ -2,6 +2,12 @@ module Enumerable
   # --------------------
   # #MY_EACH
   # --------------------
+  def my_each
+  self.length.times do |i|
+      yield self[i]
+    end
+    self
+  end
 
   # --------------------
   # #MY_EACH_WITH_INDEX
