@@ -65,7 +65,27 @@ module Enumerable
   # --------------------
   # #MY_COUNT
   # --------------------
-
+  def my_count(argument=nil)
+    count = 0
+    if argument.nil? && !block_given?
+      self.length.times do |i|
+        count += 1
+      end
+    elsif !argument.nil? && !block_given?
+      self.length.times do |i|
+        if self[i] == argument
+          count += 1
+        end
+      end
+    elsif argument.nil? && block_given?
+      self.length.times do |i|
+        if (yield self[i])
+          count += 1
+        end
+      end
+    end
+    count
+  end
   # --------------------
   # #MY_MAP
   # --------------------
