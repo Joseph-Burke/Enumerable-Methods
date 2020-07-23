@@ -71,10 +71,21 @@ module Enumerable
   # #MY_ANY?
   # --------------------
   def my_any?
-    self.length.times do |i|
-      if (yield self[i])
-        return true
+    arr = to_a
+    unless block_given?
+      arr.length.times {|i| return true if arr[i]}
+        return false
+    end
+
+    if is_a?(Hash)
+      arr.length.times do |i|
+        return true if yield arr[i]
       end
+      return false
+    end
+
+    arr.length.times do |i|
+      return true if yield arr[i]
     end
     return false
   end
@@ -162,7 +173,7 @@ module Enumerable
 end
 
 # TESTS ---------------------------
-test_array = [1, 2, 3, 4, 5]
+test_array = [1, 2, 3, 4, 5, "string"]
 test_hash = {
   :key1 => "value_1",
   :key2 => "value_2",
@@ -187,10 +198,7 @@ test_string = "STRING"
 # #MY_ALL?
 
 # p test_string.all? {|element| element.is_a?(Integer)}
-puts
-p test_string.my_all? {|element| element.is_a?(Integer)}
-
-
+# p test_string.my_all? {|element| element.is_a?(Integer)}
 
 
 =begin
@@ -205,6 +213,11 @@ WE KNOW OUR METHOD HAS THE SAME BEHAVIOUR AS THE ORIGINAL FOR THE FOLLOWING CASE
 =end
 
 # #MY_ANY?
+
+# p test_string.any? {|element| p element.is_a?(Integer)}
+puts
+# p test_string.my_any? {|element| p element.is_a?(Integer)}
+
 
 # #MY_NONE?
 
