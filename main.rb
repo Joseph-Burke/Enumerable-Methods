@@ -3,7 +3,7 @@ module Enumerable
   # #MY_EACH
   # --------------------
   def my_each
-    return to_enum if !block_given?
+    return to_enum unless block_given?
     arr = to_a
     arr.length.times do |i|
       yield arr[i]
@@ -14,7 +14,7 @@ module Enumerable
   # #MY_EACH_WITH_INDEX
   # --------------------
   def my_each_with_index
-    return to_enum if !block_given?
+    return to_enum(:each_with_index) unless block_given?
     arr = to_a
     arr.length.times do |i|
       yield arr[i], i
@@ -25,7 +25,7 @@ module Enumerable
   # #MY_SELECT
   # --------------------
   def my_select
-    return to_enum if !block_given?
+    return to_enum(:select) unless block_given?
     output_object = []
     arr = to_a
     if is_a?(Hash)
@@ -49,7 +49,7 @@ module Enumerable
   # --------------------
   def my_all?
     self.length.times do |i|
-      if !(yield self[i])
+      unless (yield self[i])
         return false
       end
     end
@@ -164,9 +164,9 @@ test_string = "STRING"
 
 # #MY_EACH_WITH_INDEX
 
-# p test_array.each_with_index {|e, i| puts "#{e}. #{i}."}
-# puts
-# p test_array.my_each_with_index {|e, i| puts "#{e}. #{i}."}
+p test_array.each {|e, i| puts "#{e}. #{i}."}
+puts
+p test_array.my_each {|e, i| puts "#{e}. #{i}."}
 
 # #MY_SELECT
 # p test_string.select {|element| element.even?}
