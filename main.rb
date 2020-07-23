@@ -93,31 +93,45 @@ module Enumerable
   # #MY_NONE?
   # --------------------
   def my_none?
-    self.length.times do |i|
-      if (yield self[i])
+    arr = to_a
+    unless block_given?
+      arr.length.times {|i| return false if arr[i]}
+        return true
+    end
+
+    if is_a?(Hash)
+      arr.length.times do |i|
+        return false if yield arr[i]
+      end
+      return true
+    end
+
+    arr.length.times do |i|
+      if (yield arr[i])
         return false
       end
     end
-    return true
+    true
   end
   # --------------------
   # #MY_COUNT
   # --------------------
   def my_count(argument=nil)
     count = 0
+    arr = to_a
     if argument.nil? && !block_given?
-      self.length.times do |i|
+      arr.length.times do |i|
         count += 1
       end
     elsif !argument.nil? && !block_given?
-      self.length.times do |i|
-        if self[i] == argument
+      arr.length.times do |i|
+        if arr[i] == argument
           count += 1
         end
       end
     elsif argument.nil? && block_given?
-      self.length.times do |i|
-        if (yield self[i])
+      arr.length.times do |i|
+        if (yield arr[i])
           count += 1
         end
       end
@@ -128,9 +142,10 @@ module Enumerable
   # #MY_MAP
   # --------------------
   def my_map
+    arr = to_a
     output_array = []
-     self.length.times do |i|
-       output_array.push(yield self[i])
+     arr.length.times do |i|
+       output_array.push(yield arr[i])
      end
     output_array
   end
@@ -138,28 +153,30 @@ module Enumerable
   # #MY_INJECT
   # --------------------
   def my_inject(arg1=nil, arg2=nil)
-      memo = 0
+      arr = to_a
       if arg2.nil? && !block_given?
         # 1. If there is one argument and no block, the argument represents
         # a symbol.
-        for i in 1..self.length-1 do
-          memo = memo.send(arg1, self[i])
+        memo = arr[0]
+        for i in 1..arr.length-1 do
+          memo = memo.send(arg1, arr[i])
         end
         # 2. 2 arguments. arg1 is initial, arg2 is symbol of operator.
       elsif !arg1.nil? && !arg2.nil?
         memo = arg1
-        self.length.times do |i|
-          memo = memo.send(arg2, self[i])
+        arr.length.times do |i|
+          memo = memo.send(arg2, arr[i])
         end
       elsif !arg1.nil? && arg2.nil? && block_given?
         # 3. Block, one argument representing initial value.
         memo = arg1
-        self.length.times do |i|
-          memo = yield memo, self[i]
+        arr.length.times do |i|
+          memo = yield memo, arr[i]
         end
       elsif arg1.nil? && arg2.nil? && block_given?
-        self.length.times do |i|
-          memo = yield memo, self[i]
+        memo = arr[0]
+        for i in 1..arr.length-1 do
+          memo = yield memo, arr[i]
         end
       end
       memo
@@ -173,13 +190,13 @@ module Enumerable
 end
 
 # TESTS ---------------------------
-test_array = [1, 2, 3, 4, 5, "string"]
+test_array = %w[hi my name is joe]
 test_hash = {
   :key1 => "value_1",
   :key2 => "value_2",
   :key3 => "value_3"
 }
-test_range = (0..10)
+test_range = (1..10)
 test_integer = 5
 test_string = "STRING"
 
@@ -200,6 +217,43 @@ test_string = "STRING"
 # p test_string.all? {|element| element.is_a?(Integer)}
 # p test_string.my_all? {|element| element.is_a?(Integer)}
 
+# #MY_ANY?
+
+# p test_string.any? {|element| p element.is_a?(Integer)}
+# p test_string.my_any? {|element| p element.is_a?(Integer)}
+
+# #MY_NONE?
+
+# p test_integer.none? {|element| element[0].is_a?(Integer)}
+# p test_integer.my_none? {|element| element[0].is_a?(Integer)}
+
+# #MY_COUNT
+
+# p test_range.count {|element| element >= 10}
+# p test_string.my_count {|element| element >= 10}
+
+# #MY_MAP
+
+# p test_string.map {|element| element + "!"}
+# p test_integer.my_map {|element| element + 10}
+
+# #MY_INJECT
+
+# 1. inject(sym) → obj WORKING
+# p test_array.inject(:+)
+# p test_array.my_inject(:+)
+
+# 2. inject(initial, sym) → obj WORKING
+# p test_range.inject(-100, :+)
+# p test_range.my_inject(-100, :+)
+
+# 3. inject(initial) { |memo, obj| block } → obj WORKING
+# p test_range.inject(100) {|sum, element| sum * element}
+# p test_range.my_inject(100) {|sum, element| sum * element}
+
+# 4. inject { |memo, obj| block } → obj WORKING
+# p test_range.inject {|sum, element| sum + element}
+# p test_range.my_inject {|sum, element| sum + element}
 
 =begin
 WE KNOW OUR METHOD HAS THE SAME BEHAVIOUR AS THE ORIGINAL FOR THE FOLLOWING CASES:
@@ -212,17 +266,20 @@ WE KNOW OUR METHOD HAS THE SAME BEHAVIOUR AS THE ORIGINAL FOR THE FOLLOWING CASE
 6. USING THE METHOD FROM A STRING.
 =end
 
-# #MY_ANY?
-
-# p test_string.any? {|element| p element.is_a?(Integer)}
-puts
-# p test_string.my_any? {|element| p element.is_a?(Integer)}
-
-
-# #MY_NONE?
-
-# #MY_COUNT
-
-# #MY_MAP
-
 # #MY_INJECT
+
+# 1. inject(sym) → obj WORKING
+# p test_array.inject(:+)
+# p test_array.my_inject(:+)
+
+# 2. inject(initial, sym) → obj WORKING
+# p test_range.inject(-100, :+)
+# p test_range.my_inject(-100, :+)
+
+# 3. inject(initial) { |memo, obj| block } → obj WORKING
+# p test_range.inject(100) {|sum, element| sum * element}
+# p test_range.my_inject(100) {|sum, element| sum * element}
+
+# 4. inject { |memo, obj| block } → obj WORKING
+# p test_range.inject {|sum, element| sum + element}
+# p test_range.my_inject {|sum, element| sum + element}
