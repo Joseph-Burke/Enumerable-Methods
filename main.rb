@@ -3,8 +3,10 @@ module Enumerable
   # #MY_EACH
   # --------------------
   def my_each
-    self.length.times do |i|
-      yield self[i]
+    return to_enum if !block_given?
+    arr = to_a
+    arr.length.times do |i|
+      yield arr[i]
     end
     self
   end
@@ -12,8 +14,10 @@ module Enumerable
   # #MY_EACH_WITH_INDEX
   # --------------------
   def my_each_with_index
-    self.length.times do |i|
-      yield self[i], i
+    return to_enum if !block_given?
+    arr = to_a
+    arr.length.times do |i|
+      yield arr[i], i
     end
     self
   end
@@ -21,13 +25,24 @@ module Enumerable
   # #MY_SELECT
   # --------------------
   def my_select
-    new_array = []
-    self.length.times do |i|
-      if (yield self[i])
-        new_array.push(self[i])
+    return to_enum if !block_given?
+    output_object = []
+    arr = to_a
+    if is_a?(Hash)
+      arr = to_a
+      arr.length.times do |i|
+        if (yield arr[i][0])
+          output_object.push(arr[i])
+        end
+      end
+      return output_object.to_h
+    end
+    arr.length.times do |i|
+      if (yield arr[i])
+        output_object.push(self.to_a[i])
       end
     end
-    new_array
+    output_object
   end
   # --------------------
   # #MY_ALL?
@@ -126,17 +141,49 @@ module Enumerable
       end
       memo
     end
+  # --------------------
+  # #MULTIPLY_ELS
+  # --------------------
+  def multiply_els(array)
+    array.my_inject(:*)
+  end
 end
 
 # TESTS ---------------------------
+test_array = [1, 2, 3, 4, 5, "String 1", "String 2", "String 3"]
+test_hash = {
+  "key1" => "value_1",
+  :key2 => "value_2",
+  :key3 => "value_3",
+}
+test_range = (0..10)
+test_integer = 5
+test_string = "STRING"
 
 # #MY_EACH
 
 # #MY_EACH_WITH_INDEX
 
+# p test_array.each_with_index {|e, i| puts "#{e}. #{i}."}
+# puts
+# p test_array.my_each_with_index {|e, i| puts "#{e}. #{i}."}
+
 # #MY_SELECT
+# p test_string.select {|element| element.even?}
+# p test_string.my_select {|element| element.even?}
 
 # #MY_ALL?
+
+=begin
+WE KNOW OUR METHOD HAS THE SAME BEHAVIOUR AS THE ORIGINAL FOR THE FOLLOWING CASES:
+1a. WITHOUT ARGUMENT, WITHOUT CODE BLOCK.
+1b. WITH ARGUMENT, WITHOUT CODE BLOCK
+2. USING THE METHOD FROM AN ARRAY.
+3. USING THE METHOD FROM A HASH.
+4. USING THE METHOD FROM A RANGE.
+5. USING THE METHOD FROM AN INTEGER.
+6. USING THE METHOD FROM A STRING.
+=end
 
 # #MY_ANY?
 
