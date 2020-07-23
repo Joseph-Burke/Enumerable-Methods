@@ -29,7 +29,6 @@ module Enumerable
     output_object = []
     arr = to_a
     if is_a?(Hash)
-      arr = to_a
       arr.length.times do |i|
         if (yield arr[i][0])
           output_object.push(arr[i])
@@ -47,13 +46,26 @@ module Enumerable
   # --------------------
   # #MY_ALL?
   # --------------------
-  def my_all?
-    self.length.times do |i|
-      unless (yield self[i])
+  def my_all?(args=nil)
+    arr = to_a
+    unless block_given?
+      arr.length.times {|i| return false unless arr[i]}
+        return true
+    end
+
+    if is_a?(Hash)
+      arr.length.times do |i|
+        return false unless yield arr[i]
+      end
+      return true
+    end
+
+    arr.length.times do |i|
+      unless (yield arr[i])
         return false
       end
     end
-    return true
+    true
   end
   # --------------------
   # #MY_ANY?
@@ -150,11 +162,11 @@ module Enumerable
 end
 
 # TESTS ---------------------------
-test_array = [1, 2, 3, 4, 5, "String 1", "String 2", "String 3"]
+test_array = [1, 2, 3, 4, 5]
 test_hash = {
-  "key1" => "value_1",
+  :key1 => "value_1",
   :key2 => "value_2",
-  :key3 => "value_3",
+  :key3 => "value_3"
 }
 test_range = (0..10)
 test_integer = 5
@@ -164,15 +176,22 @@ test_string = "STRING"
 
 # #MY_EACH_WITH_INDEX
 
-p test_array.each {|e, i| puts "#{e}. #{i}."}
-puts
-p test_array.my_each {|e, i| puts "#{e}. #{i}."}
+# p test_array.each {|e, i| puts "#{e}. #{i}."}
+# puts
+# p test_array.my_each {|e, i| puts "#{e}. #{i}."}
 
 # #MY_SELECT
 # p test_string.select {|element| element.even?}
 # p test_string.my_select {|element| element.even?}
 
 # #MY_ALL?
+
+# p test_string.all? {|element| element.is_a?(Integer)}
+puts
+p test_string.my_all? {|element| element.is_a?(Integer)}
+
+
+
 
 =begin
 WE KNOW OUR METHOD HAS THE SAME BEHAVIOUR AS THE ORIGINAL FOR THE FOLLOWING CASES:
