@@ -29,18 +29,10 @@ module Enumerable
     output_object = []
     arr = to_a
     if is_a?(Hash)
-      arr.length.times do |i|
-        if (yield arr[i][0])
-          output_object.push(arr[i])
-        end
-      end
+      arr.my_each {|i| output_object.push(i) if (yield i[0])}
       return output_object.to_h
     end
-    arr.length.times do |i|
-      if (yield arr[i])
-        output_object.push(self.to_a[i])
-      end
-    end
+    arr.my_each {|i| output_object.push(i) if (yield i)}
     output_object
   end
   # --------------------
@@ -49,22 +41,14 @@ module Enumerable
   def my_all?(args=nil)
     arr = to_a
     unless block_given?
-      arr.length.times {|i| return false unless arr[i]}
-        return true
-    end
-
-    if is_a?(Hash)
-      arr.length.times do |i|
-        return false unless yield arr[i]
-      end
+      arr.my_each {|i| return false unless i}
       return true
     end
-
-    arr.length.times do |i|
-      unless (yield arr[i])
-        return false
-      end
+    if is_a?(Hash)
+      arr.my_each {|i| return false unless (yield i)}
+      return true
     end
+    arr.my_each {|i| return false unless (yield i)}
     true
   end
   # --------------------
@@ -73,20 +57,14 @@ module Enumerable
   def my_any?
     arr = to_a
     unless block_given?
-      arr.length.times {|i| return true if arr[i]}
+      arr.my_each {|i| return true if i}
         return false
     end
-
     if is_a?(Hash)
-      arr.length.times do |i|
-        return true if yield arr[i]
-      end
+      arr.my_each {|i| return true if (yield i)}
       return false
     end
-
-    arr.length.times do |i|
-      return true if yield arr[i]
-    end
+    arr.my_each {|i| return true if (yield i)}
     return false
   end
   # --------------------
@@ -95,22 +73,14 @@ module Enumerable
   def my_none?
     arr = to_a
     unless block_given?
-      arr.length.times {|i| return false if arr[i]}
-        return true
-    end
-
-    if is_a?(Hash)
-      arr.length.times do |i|
-        return false if yield arr[i]
-      end
+      arr.my_each {|i| return false if i}
       return true
     end
-
-    arr.length.times do |i|
-      if (yield arr[i])
-        return false
-      end
+    if is_a?(Hash)
+      arr.my_each {|i| return false if (yield i)}
+      return true
     end
+    arr.my_each {|i| return false if (yield i)}
     true
   end
   # --------------------
@@ -120,33 +90,21 @@ module Enumerable
     count = 0
     arr = to_a
     if argument.nil? && !block_given?
-      arr.length.times do |i|
-        count += 1
-      end
+      arr.my_each {|i| count += 1}
     elsif !argument.nil? && !block_given?
-      arr.length.times do |i|
-        if arr[i] == argument
-          count += 1
-        end
-      end
+      arr.my_each {|i| count += 1 if i == argument}
     elsif argument.nil? && block_given?
-      arr.length.times do |i|
-        if (yield arr[i])
-          count += 1
-        end
-      end
+      arr.my_each {|i| count += 1 if (yield i)}
     end
     count
   end
   # --------------------
   # #MY_MAP
   # --------------------
-  def my_map
+  def my_map(&proc)
     arr = to_a
     output_array = []
-     arr.length.times do |i|
-       output_array.push(yield arr[i])
-     end
+    arr.my_each {|i| output_array.push(yield i)}
     output_array
   end
   # --------------------
@@ -155,29 +113,17 @@ module Enumerable
   def my_inject(arg1=nil, arg2=nil)
       arr = to_a
       if arg2.nil? && !block_given?
-        # 1. If there is one argument and no block, the argument represents
-        # a symbol.
         memo = arr[0]
-        for i in 1..arr.length-1 do
-          memo = memo.send(arg1, arr[i])
-        end
-        # 2. 2 arguments. arg1 is initial, arg2 is symbol of operator.
+        arr[1..-1].each {|i| memo = memo.send(arg1, i)}
       elsif !arg1.nil? && !arg2.nil?
         memo = arg1
-        arr.length.times do |i|
-          memo = memo.send(arg2, arr[i])
-        end
+        arr.each {|i| memo = memo.send(arg2, i)}
       elsif !arg1.nil? && arg2.nil? && block_given?
-        # 3. Block, one argument representing initial value.
         memo = arg1
-        arr.length.times do |i|
-          memo = yield memo, arr[i]
-        end
+        arr.each {|i| memo = yield memo, i}
       elsif arg1.nil? && arg2.nil? && block_given?
         memo = arr[0]
-        for i in 1..arr.length-1 do
-          memo = yield memo, arr[i]
-        end
+        arr[1..-1].each {|i| memo = yield memo, i}
       end
       memo
     end
@@ -190,7 +136,7 @@ module Enumerable
 end
 
 # TESTS ---------------------------
-test_array = %w[hi my name is joe]
+test_array = %w[hello hello hello hello]
 test_hash = {
   :key1 => "value_1",
   :key2 => "value_2",
@@ -199,43 +145,48 @@ test_hash = {
 test_range = (1..10)
 test_integer = 5
 test_string = "STRING"
+test_proc = Proc.new {|element| element + ", nice to meet you."}
 
 # #MY_EACH
 
+# p test_array.each {|e| puts "#{e}."}
+# puts
+# p test_array.my_each {|e| puts "#{e}."}
+
 # #MY_EACH_WITH_INDEX
 
-# p test_array.each {|e, i| puts "#{e}. #{i}."}
+# p test_array.each_with_index {|e, i| puts "#{e}. #{i}."}
 # puts
-# p test_array.my_each {|e, i| puts "#{e}. #{i}."}
+# p test_array.my_each_with_index {|e, i| puts "#{e}. #{i}."}
 
 # #MY_SELECT
-# p test_string.select {|element| element.even?}
-# p test_string.my_select {|element| element.even?}
+# p test_hash.select {|element| p element.length > 4}
+# p test_hash.my_select {|element| p element.length > 4}
 
 # #MY_ALL?
 
-# p test_string.all? {|element| element.is_a?(Integer)}
-# p test_string.my_all? {|element| element.is_a?(Integer)}
+# p test_hash.all? {|element| element.is_a?(Array)}
+# p test_hash.my_all? {|element| element.is_a?(Array)}
 
 # #MY_ANY?
 
-# p test_string.any? {|element| p element.is_a?(Integer)}
-# p test_string.my_any? {|element| p element.is_a?(Integer)}
+# p test_array.any? {|element| element.is_a?(Integer)}
+# p test_array.my_any? {|element| element.is_a?(Integer)}
 
 # #MY_NONE?
 
-# p test_integer.none? {|element| element[0].is_a?(Integer)}
-# p test_integer.my_none? {|element| element[0].is_a?(Integer)}
+# p test_array.none? {|element| element[0].is_a?(String)}
+# p test_array.my_none? {|element| element[0].is_a?(String)}
 
 # #MY_COUNT
 
-# p test_range.count {|element| element >= 10}
-# p test_string.my_count {|element| element >= 10}
+# p test_array.count {|element| element.is_a?(String)}
+# p test_array.my_count {|element| element.is_a?(String)}
 
 # #MY_MAP
 
-# p test_string.map {|element| element + "!"}
-# p test_integer.my_map {|element| element + 10}
+# p test_array.map(&test_proc)
+# p test_array.my_map(&test_proc)
 
 # #MY_INJECT
 
@@ -243,7 +194,7 @@ test_string = "STRING"
 # p test_array.inject(:+)
 # p test_array.my_inject(:+)
 
-# 2. inject(initial, sym) → obj WORKING
+# # 2. inject(initial, sym) → obj WORKING
 # p test_range.inject(-100, :+)
 # p test_range.my_inject(-100, :+)
 
