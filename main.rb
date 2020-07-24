@@ -120,30 +120,23 @@ module Enumerable
   # #MY_INJECT
   # --------------------
 
-  def my_inject(arg1 = nil, arg2 = nil)
-    memo = 0
-    if arg2.nil? && !block_given?
-      # 1. If there is one argument and no block, the argument represents
-      # a symbol.
-      for i in 1..self.length-1 do
-        memo = meAmo.send(arg1, self[i])
-      end
-      # 2. 2 arguments. arg1 is initial, arg2 is symbol of operator.
-    elsif !arg1.nil? && !arg2.nil?
-      memo = arg1
-      self.length.times do |i|
-        memo = memo.send(arg2, self[i])
-      end
-    elsif !arg1.nil? && arg2.nil? && block_given?
-      # 3. Block, one argument representing initial value.
-      memo = arg1
-      self.length.times do |i|
-        memo = yield memo, self[i]
-      end
-    elsif arg1.nil? && arg2.nil? && block_given?
-      self.length.times do |i|
-        memo = yield memo, self[i]
-      end
+  def my_inject(*args)
+    arr = to_a
+    arg1 = args[0]
+    arg2 = args[1]
+
+    both_args = arg1 && arg2
+    only_first = arg1 && !arg2
+    no_arg = !arg1
+
+    memo = (only_first && !block_given?) || (no_arg && block_given?) ? arr[0] : arg1
+
+    if block_given?
+      arr.drop(1).my_each { |i| memo = yield memo, i } if no_arg
+      arr.my_each { |i| memo = yield memo, i } if only_first
+    else
+      arr.drop(1).my_each { |i| memo = memo.send(arg1, i) } if only_first
+      arr.my_each { |i| memo = memo.send(arg2, i) } if both_args
     end
     memo
   end
