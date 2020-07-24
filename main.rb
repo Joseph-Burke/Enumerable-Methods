@@ -44,7 +44,7 @@ module Enumerable
   # #MY_ALL?
   # --------------------
 
-  def my_all?(args = nil)
+  def my_all?(_args = nil)
     arr = to_a
     unless block_given?
       arr.my_each { |i| return false unless i }
@@ -110,7 +110,7 @@ module Enumerable
   # #MY_MAP
   # --------------------
 
-  def my_map(&proc)
+  def my_map(&_proc)
     arr = to_a
     output_array = []
     arr.my_each { |i| output_array.push(yield i) }
