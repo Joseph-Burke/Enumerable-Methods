@@ -44,17 +44,13 @@ module Enumerable
   # #MY_ALL?
   # --------------------
 
-  def my_all?(_args = nil)
+  def my_all?(arg = nil)
     arr = to_a
     unless block_given?
-      arr.my_each { |i| return false unless i }
-      return true
+      arr.my_each { |i| return false unless i } if arg.nil?
+      arr.my_each { |i| return false unless arg == i } unless arg.nil?
     end
-    if is_a?(Hash)
-      arr.my_each { |i| return false unless yield i }
-      return true
-    end
-    arr.my_each { |i| return false unless yield i }
+    arr.my_each { |i| return false unless yield i } if block_given?
     true
   end
   # --------------------
@@ -140,11 +136,34 @@ module Enumerable
     end
     memo
   end
-  # --------------------
-  # #MULTIPLY_ELS
-  # --------------------
-
-  def multiply_els(array)
-    array.my_inject(:*)
-  end
 end
+
+# --------------------
+# #MULTIPLY_ELS
+# --------------------
+
+def multiply_els(array)
+  array.my_inject(:*)
+end
+
+# TESTS ------------------------
+
+test_array = [2, 1, 6, 7, 4, 8, 10]
+test_hash = {
+  key1: 'value_1',
+  key2: 'value_2'
+}
+test_range = (1..10)
+test_integer = 5
+test_string = "STRING"
+test_proc = Proc.new {|element| element + ", nice to meet you."}
+
+# p test_hash
+# p test_array.all?(3)
+# p test_array.my_all?(3)
+
+# 2. my_all?:
+# [2, 1, 6, 7, 4, 8, 10].my_all?(3) # => false
+# p %w[Marc Luc Jean].my_all?('Jean') # => false
+p %w[Marc Jean].my_all?(/a/) # => false
+p %w[Marc Jean].all?(/a/) # => false
