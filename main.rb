@@ -61,17 +61,17 @@ module Enumerable
   # #MY_ANY?
   # --------------------
 
-  def my_any?
+  def my_any?(arg = nil)
     arr = to_a
-    unless block_given?
-      arr.my_each { |i| return true if i }
-      return false
+    has_argument = !arg.nil?
+    if has_argument
+      arr.my_each { |i| return true if i.match(arg) } if arg.is_a?(Regexp)
+      arr.my_each { |i| return true if i.is_a?(arg) } if arg.is_a?(Class || Module)
+      arr.my_each { |i| return true if arg == i } unless arg.is_a?(Regexp || Class || Module)
+    else
+      arr.my_each { |i| return true if i } unless block_given?
+      arr.my_each { |i| return true if yield i } if block_given?
     end
-    if is_a?(Hash)
-      arr.my_each { |i| return true if yield i }
-      return false
-    end
-    arr.my_each { |i| return true if yield i }
     false
   end
   # --------------------
@@ -162,23 +162,8 @@ test_integer = 5
 test_string = "STRING"
 test_proc = Proc.new {|element| element + ", nice to meet you."}
 
-# p test_hash
-# p test_array.all?(3)
-# p test_array.my_all?(3)
-
-# 2. my_all?:
-# [2, 1, 6, 7, 4, 8, 10].my_all?(3) # => false
-# p %w[Marc Luc Jean].my_all?('Jean') # => false
-p %w[Marc Jean].my_all?(/a/) # => false
-p %w[Marc Jean].all?(/a/) # => false
-
-# p "hello".match?(/e/)
-
-# p /e/.is_a?(Regexp)
-
-
-
-# arr.each {|i| return false unless i.match(arg1)} if arg.is_a?(Regexp)
-
-# Detect if the argument is a regexp and give it certain behaviour
-
+p %w[Marc Luc Jean].my_any?(/d/) # => false
+p [2, 1, 6, 7, 4, 8, 10].my_any?(7) # => true
+p %w[Marc Luc Jean].my_any?('Jean') # => true
+p [nil, true, 99].my_any?(Integer) # => true
+p ['1', 5i, 5.67].my_any?(Numeric) # => true
