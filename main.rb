@@ -78,17 +78,17 @@ module Enumerable
   # #MY_NONE?
   # --------------------
 
-  def my_none?
+  def my_none?(arg = nil)
     arr = to_a
-    unless block_given?
-      arr.my_each { |i| return false if i }
-      return true
+    has_argument = !arg.nil?
+    if has_argument
+      arr.my_each { |i| return false if i.match(arg) } if arg.is_a?(Regexp)
+      arr.my_each { |i| return false if i.is_a?(arg) } if arg.is_a?(Class || Module)
+      arr.my_each { |i| return false if arg == i } unless arg.is_a?(Regexp || Class || Module)
+    else
+      arr.my_each { |i| return false if i } unless block_given?
+      arr.my_each { |i| return false if yield i } if block_given?
     end
-    if is_a?(Hash)
-      arr.my_each { |i| return false if yield i }
-      return true
-    end
-    arr.my_each { |i| return false if yield i }
     true
   end
   # --------------------
@@ -162,8 +162,8 @@ test_integer = 5
 test_string = "STRING"
 test_proc = Proc.new {|element| element + ", nice to meet you."}
 
-p %w[Marc Luc Jean].my_any?(/d/) # => false
-p [2, 1, 6, 7, 4, 8, 10].my_any?(7) # => true
-p %w[Marc Luc Jean].my_any?('Jean') # => true
-p [nil, true, 99].my_any?(Integer) # => true
-p ['1', 5i, 5.67].my_any?(Numeric) # => true
+# p %w[Marc Luc Jean].my_none?(/j/) #=> true
+# p [2, 1, 6, 7, 4, 8, 10].my_none?(15) #=> true
+# p %w[Marc Luc Jean].my_none?('Jean')
+# p [1, 3.14, 42].my_none?(Float)
+# p [1, 5i, 5.67].my_none?(Numeric)
