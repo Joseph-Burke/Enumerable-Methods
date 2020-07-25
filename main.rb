@@ -46,6 +46,10 @@ module Enumerable
 
   def my_all?(arg = nil)
     arr = to_a
+    if arg.is_a?(Regexp)
+      arr.my_each { |i| return false unless i.match(arg) }
+      return true
+    end
     unless block_given?
       arr.my_each { |i| return false unless i } if arg.nil?
       arr.my_each { |i| return false unless arg == i } unless arg.nil?
@@ -167,3 +171,14 @@ test_proc = Proc.new {|element| element + ", nice to meet you."}
 # p %w[Marc Luc Jean].my_all?('Jean') # => false
 p %w[Marc Jean].my_all?(/a/) # => false
 p %w[Marc Jean].all?(/a/) # => false
+
+# p "hello".match?(/e/)
+
+# p /e/.is_a?(Regexp)
+
+
+
+# arr.each {|i| return false unless i.match(arg1)} if arg.is_a?(Regexp)
+
+# Detect if the argument is a regexp and give it certain behaviour
+
