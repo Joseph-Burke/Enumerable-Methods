@@ -1,6 +1,6 @@
 # Enumerable Methods
 
-For this project, we have produced our own versions a number of common methods in Ruby's Enumerable module: 
+For this project, we have produced our own versions of a number of common methods in Ruby's Enumerable module: 
 
 - #my_each - a method which behaves like #each. This method was then used within the other methods we created.
 - #my_each_with_index - a method which behaves like #each_with_index
