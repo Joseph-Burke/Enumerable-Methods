@@ -46,15 +46,15 @@ module Enumerable
 
   def my_all?(arg = nil)
     arr = to_a
-    if arg.is_a?(Regexp)
-      arr.my_each { |i| return false unless i.match(arg) }
-      return true
+    has_argument = !arg.nil?
+    if has_argument
+      arr.my_each { |i| return false unless i.match(arg) } if arg.is_a?(Regexp)
+      arr.my_each { |i| return false unless i.is_a?(arg) } if arg.is_a?(Class || Module)
+      arr.my_each { |i| return false unless arg == i } unless arg.is_a?(Class || Module || Regexp)
+    else
+      arr.my_each { |i| return false if i } unless block_given?
+      arr.my_each { |i| return false if yield i } if block_given?
     end
-    unless block_given?
-      arr.my_each { |i| return false unless i } if arg.nil?
-      arr.my_each { |i| return false unless arg == i } unless arg.nil?
-    end
-    arr.my_each { |i| return false unless yield i } if block_given?
     true
   end
   # --------------------
