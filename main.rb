@@ -149,21 +149,3 @@ end
 def multiply_els(array)
   array.my_inject(:*)
 end
-
-# TESTS ------------------------
-
-test_array = [2, 1, 6, 7, 4, 8, 10]
-test_hash = {
-  key1: 'value_1',
-  key2: 'value_2'
-}
-test_range = (1..10)
-test_integer = 5
-test_string = "STRING"
-test_proc = Proc.new {|element| element + ", nice to meet you."}
-
-# p %w[Marc Luc Jean].my_none?(/j/) #=> true
-# p [2, 1, 6, 7, 4, 8, 10].my_none?(15) #=> true
-# p %w[Marc Luc Jean].my_none?('Jean')
-# p [1, 3.14, 42].my_none?(Float)
-# p [1, 5i, 5.67].my_none?(Numeric)
