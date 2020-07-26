@@ -52,8 +52,8 @@ module Enumerable
       arr.my_each { |i| return false unless i.is_a?(arg) } if arg.is_a?(Class || Module)
       arr.my_each { |i| return false unless arg == i } unless arg.is_a?(Class || Module || Regexp)
     else
-      arr.my_each { |i| return false if i } unless block_given?
-      arr.my_each { |i| return false if yield i } if block_given?
+      arr.my_each { |i| return false unless i } unless block_given?
+      arr.my_each { |i| return false unless yield i } if block_given?
     end
     true
   end
