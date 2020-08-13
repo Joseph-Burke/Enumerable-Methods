@@ -13,6 +13,18 @@ describe Enumerable do
         end
     end
 
+    describe '#my_any?' do
+        it 'returns true if any items return true when passed through the code block' do
+            # expect([1, 2, 3, 4].my_any? { |e| e >= 4 }).to eql(true)
+        end
+    end
+
+    describe '#my_none?' do
+        it 'returns true if none items return true when passed through the code block' do
+            expect([1, 2, 3, 4].my_none? {|a| a > 5 }).to eql(true)
+        end
+    end
+
     describe '#my_each_with_index' do
         it 'passes each element and its index through a code block' do
             hash = Hash.new
@@ -26,6 +38,12 @@ describe Enumerable do
             array = Array.new
             %w[apple banana cherry].my_each {|e| array.push(e)}
             expect(array).to eql(['apple', 'banana', 'cherry'])
+        end
+    end
+
+    describe '#my_count' do
+        it 'returns the number of elements if no block given' do
+            expect([1, 2, 3, 4].my_count).to eql(4)
         end
     end
 
