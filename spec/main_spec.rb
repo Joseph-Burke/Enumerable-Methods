@@ -5,11 +5,17 @@ describe Enumerable do
     it 'returns an array of items which the code block passes as true' do
       expect([1, 2, 3].my_select(&:even?)).to eql([2])
     end
+    # it 'does not return items which the code block passes as false' do
+    #     expect([1, 2, 3, 4, 5].my_select { |e| e > 5}).to eql(false)
+    # end
   end
 
   describe '#my_all' do
     it 'returns true if all items return true when passed through the code block' do
       expect([1, 2, 3].my_all? { |e| e < 5 }).to eql(true)
+    end
+    it 'returns false none of the items' do
+      expect([1, 2, 3].my_all? { |e| e > 5 }).not_to eql(true)
     end
   end
 
@@ -17,11 +23,17 @@ describe Enumerable do
     it 'returns true if any items return true when passed through the code block' do
       expect([1, 2, 3, 4].my_any? { |e| e >= 4 }).to eql(true)
     end
+    it 'does not return true if none of the items return true when passed through the code block' do
+      expect([1, 2, 3, 4].my_any? { |e| e > 4 }).not_to eql(true)
+    end
   end
 
   describe '#my_none?' do
     it 'returns true if none items return true when passed through the code block' do
       expect([1, 2, 3, 4].my_none? { |a| a > 5 }).to eql(true)
+    end
+    it 'does not return true if any of the items return true when passed through the code block' do
+      expect([1, 2, 3, 4].my_none? { |a| a < 2 }).not_to eql(true)
     end
   end
 
@@ -57,5 +69,11 @@ describe Enumerable do
     it 'returns an accumulated value' do
       expect([1, 2, 3, 4].my_inject(:+)).to eql(10)
     end
+  end
+end
+
+describe '#multiply_els' do
+  it 'returns the multiplication of all items in an array' do
+    expect(multiply_els([1, 2, 3])).to eql(6)
   end
 end
